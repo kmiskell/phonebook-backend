@@ -16,11 +16,6 @@ if (process.argv.length < 3) {
 
 const password = process.argv[2]
 
-if (process.argv.length === 5) {
-    const name = process.argv[3]
-    const number = process.argv[4]
-}
-
 const url = `mongodb+srv://kyliamiskell_db_user:${password}@cluster0.yhznngn.mongodb.net/phonebookApp?appName=Cluster0`
 
 mongoose.set('strictQuery', false)
@@ -34,7 +29,9 @@ const personSchema = new mongoose.Schema({
 
 const Person = mongoose.model('Person', personSchema)
 
-if (name && number) {
+if (process.argv.length === 5) {
+    const name = process.argv[3]
+    const number = process.argv[4]
     const person = new Person({
         name: name,
         number: number,
