@@ -67,11 +67,14 @@ app.post('/api/persons', (request, response) => {
         })
     }
     // is this a duplicate name?
-    if (persons.find(p => p.name === body.name)) {
-        return response.status(400).json({
-            error: 'Name must be unique.'
+    Person.find({ name: body.name })
+        .then( existingPerson => {
+            if (existingPerson) {
+                return response.status(400).json({
+                    error: 'Name must be unique.'
+                })
+            }
         })
-    }
 
     const person = new Person({
         name: body.name,
