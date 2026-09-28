@@ -43,8 +43,9 @@ let persons = [
 
 app.get('/info', (request, response) => {
     currTime = Date()
-    numPersons = persons.length
-    response.send(`<p>Phonebook has info for ${numPersons} people</p><p>${currTime}</p>`)
+    Person.find({}).then( persons => {
+        response.send(`<p>Phonebook has info for ${persons.length} people</p><p>${currTime}</p>`)
+    })
 })
 
 app.get('/api/persons', (request, response) => {
