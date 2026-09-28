@@ -39,6 +39,8 @@ let persons = [
     }
 ]
 
+// ROUTES
+
 app.get('/info', (request, response) => {
     currTime = Date()
     numPersons = persons.length
@@ -106,11 +108,26 @@ app.post('/api/persons', (request, response) => {
     response.json(person)
 })
 
+// UNKNOWN ENDPOINT
+
 const unknownEndpoint = (request, response) => {
     response.status(404).send({ error: 'unknown endpoint' })
 }
 
 app.use(unknownEndpoint)
+
+// ERROR HANDLING
+
+const errorHandler = (error, request, response, next) => {
+    console.log(error.message)
+
+    if (error.name === 'CastError') {
+        return response.status(400).send({ error: 'malformatted id'})
+    }
+
+    next(error)
+}
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
