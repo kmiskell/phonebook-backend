@@ -82,6 +82,24 @@ app.post('/api/persons', (request, response) => {
     })
 })
 
+app.put('/api/persons/:id', (request, response, next) => {
+    const { name, number } = request.body
+
+    Person.findById(request.params.id)
+        .then(person => {
+            if (!person) {
+                return response.status(404).end()
+            }
+
+            person.number = number
+
+            return person.save().then(updatedPerson => {
+                response.json(updatedPerson)
+            })
+        })
+        .catch(error => next(error))
+})
+
 // UNKNOWN ENDPOINT
 
 const unknownEndpoint = (request, response) => {
