@@ -84,6 +84,11 @@ app.post('/api/persons', (request, response, next) => {
                 console.log("Save successful!")
                 response.json(savedPerson)
             })
+            .catch( error => {
+                console.log("Uh-oh saving threw an error.")
+                console.log(error.message)
+                next(error)
+            })
         })
         .catch(error => {
             console.log("Save failed with error: ", error)
@@ -105,6 +110,11 @@ app.put('/api/persons/:id', (request, response, next) => {
             return person.save().then(updatedPerson => {
                 response.json(updatedPerson)
             })
+            .catch(error => {
+                console.log("Uh-oh saving threw an error.")
+                console.log(error.message)
+                next(error)
+            })
         })
         .catch(error => next(error))
 })
@@ -120,7 +130,7 @@ app.use(unknownEndpoint)
 // ERROR HANDLING
 
 const errorHandler = (error, request, response, next) => {
-    console.log("In error handler, error is: ", error.message)
+    console.log("In error handler...")
 
     if (error.name === 'CastError') {
         console.log("It's a Cast Error")
