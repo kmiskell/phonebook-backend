@@ -19,7 +19,7 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :d
 // ROUTES
 
 app.get('/info', (request, response) => {
-    currTime = Date()
+    const currTime = Date()
     Person.find({}).then( persons => {
         response.send(`<p>Phonebook has info for ${persons.length} people</p><p>${currTime}</p>`)
     })
@@ -53,41 +53,46 @@ app.delete('/api/persons/:id', (request, response, next) => {
 
 app.post('/api/persons', (request, response, next) => {
     const body = request.body
-
+    console.log("Checking if you sent a name...")
     // did you send a name?
     if (!body.name) {
         return response.status(400).json({
             error: 'Missing name field.'
         })
     }
+    console.log("Checking if you sent a number...")
     // did you send a number?
     if (!body.number) {
         return response.status(400).json({
             error: 'Missing number field.'
         })
     }
+    console.log("Checking if this is a duplicate name...")
     // is this a duplicate name?
-    Person.find({ name: body.name })
+    Person.findOne({ name: body.name })
         .then( existingPerson => {
             if (existingPerson) {
                 return response.status(400).json({
                     error: 'Name must be unique.'
                 })
             }
+            const person = new Person({
+                name: body.name,
+                number: body.number,
+            })
+            person.save().then(savedPerson => {
+                console.log("Save successful!")
+                response.json(savedPerson)
+            })
         })
-
-    const person = new Person({
-        name: body.name,
-        number: body.number,
-    })
-    person.save().then(savedPerson => {
-        response.json(savedPerson)
-    })
-    .catch(error => next(error))
+        .catch(error => {
+            console.log("Save failed with error: ", error)
+            next(error)
+        })
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
-    const { name, number } = request.body
+    const { number } = request.body
 
     Person.findById(request.params.id)
         .then(person => {
@@ -115,14 +120,16 @@ app.use(unknownEndpoint)
 // ERROR HANDLING
 
 const errorHandler = (error, request, response, next) => {
-    console.log(error.message)
+    console.log("In error handler, error is: ", error.message)
 
     if (error.name === 'CastError') {
+        console.log("It's a Cast Error")
         return response.status(400).send({ error: 'malformatted id'})
     } else if (error.name === 'ValidationError') {
+        console.log("It's a Validation Error")
         return response.status(400).json({ error: error.message })
     }
-
+    console.log("It's an error we don't handle!")
     next(error)
 }
 app.use(errorHandler)
